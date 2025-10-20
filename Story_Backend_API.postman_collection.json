@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "Story Backend API",
+    "description": "Collection for testing Users and Auth endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    const response = pm.response.json();",
+                    "    pm.collectionVariables.set('token', response.access_token);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user_id_here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user_id_here"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "item": [
+        {
+          "name": "Create Template (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "pdf",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "title",
+                  "value": "Sample Template",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "A sample template for testing",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Story",
+                  "type": "text"
+                },
+                {
+                  "key": "ageRange",
+                  "value": "5-10",
+                  "type": "text"
+                },
+                {
+                  "key": "variables",
+                  "value": "[{\"name\":\"name\",\"type\":\"string\",\"defaultValue\":\"John\"}]",
+                  "type": "text"
+                },
+                {
+                  "key": "elements",
+                  "value": "[{\"type\":\"text\",\"content\":\"Hello {{name}}\",\"position\":{\"x\":10,\"y\":10},\"size\":{\"w\":100,\"h\":20}}]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates"]
+            }
+          }
+        },
+        {
+          "name": "Get All Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates"]
+            }
+          }
+        },
+        {
+          "name": "Get Template by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "template_id_here"
+                },
+                {
+                  "name": "PDF",
+                  "item": [
+                    {
+                      "name": "Generate PDF",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"templateId\": \"60d5ecb74b24c72b8c8b4567\",\n  \"userValues\": {\n    \"name\": \"Alice\",\n    \"age\": \"25\"\n  }\n}"
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/pdf/generate",
+                          "host": ["{{baseUrl}}"],
+                          "path": ["pdf", "generate"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Template (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Template\",\n  \"description\": \"Updated description\",\n  \"category\": \"Updated Category\",\n  \"ageRange\": \"6-12\",\n  \"variables\": [\n    {\n      \"name\": \"name\",\n      \"type\": \"string\",\n      \"defaultValue\": \"Jane\"\n    }\n  ],\n  \"elements\": [\n    {\n      \"type\": \"text\",\n      \"content\": \"Hi {{name}}\",\n      \"position\": {\n        \"x\": 20,\n        \"y\": 20\n      },\n      \"size\": {\n        \"w\": 150,\n        \"h\": 30\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "template_id_here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Template (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/templates/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["templates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "template_id_here"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Zones",
+      "item": [
+        {
+          "name": "Create Zone (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateId\": \"template_id_here\",\n  \"name\": \"Sample Zone\",\n  \"type\": \"text\",\n  \"variables\": [\"name\"],\n  \"content\": \"Hello {{name}}\",\n  \"position\": {\n    \"x\": 10,\n    \"y\": 10\n  },\n  \"size\": {\n    \"w\": 100,\n    \"h\": 20\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/zones",
+              "host": ["{{baseUrl}}"],
+              "path": ["zones"]
+            }
+          }
+        },
+        {
+          "name": "Get Zones by Template ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/zones/:templateId",
+              "host": ["{{baseUrl}}"],
+              "path": ["zones", ":templateId"],
+              "variable": [
+                {
+                  "key": "templateId",
+                  "value": "template_id_here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Zone (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Zone\",\n  \"content\": \"Hi {{name}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/zones/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["zones", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "zone_id_here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Zone (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/zones/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["zones", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "zone_id_here"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
