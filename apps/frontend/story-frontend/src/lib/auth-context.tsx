@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import api from './api';
 
 interface User {
   id: string;
@@ -12,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  login: (token: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -53,11 +54,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = async (newToken: string) => {
+    console.log('Début du processus de login avec token');
     setToken(newToken);
-    setUser(newUser);
     localStorage.setItem('authToken', newToken);
-    localStorage.setItem('authUser', JSON.stringify(newUser));
+    console.log('Token stocké dans localStorage');
+
+    try {
+      // Fetch user profile using the token
+      console.log('Récupération du profil utilisateur');
+      const response = await api.get('/auth/profile');
+      console.log('Réponse profil:', response);
+      const userData = response.data;
+      const user: User = {
+        id: userData.sub || userData._id,
+        email: userData.email,
+        name: userData.name || userData.email, // Fallback to email if name not provided
+        role: userData.role,
+      };
+      console.log('Utilisateur créé:', user);
+      setUser(user);
+      localStorage.setItem('authUser', JSON.stringify(user));
+      console.log('Utilisateur stocké dans localStorage');
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      // Optionally handle error, e.g., logout or show message
+    }
   };
 
   const logout = () => {

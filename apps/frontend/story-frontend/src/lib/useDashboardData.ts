@@ -43,13 +43,20 @@ export function useDashboardData(): UseDashboardDataReturn {
     try {
       setLoading(true);
       setError(null);
+      console.log('Début récupération données dashboard');
 
       // Récupérer toutes les données en parallèle
+      console.log('Appels API parallèles: users, templates, pdfs');
       const [usersResponse, templatesResponse, pdfsResponse] = await Promise.all([
         api.get('/users'),
         api.get('/templates'),
         api.get('/pdf/generated').catch(() => ({ data: [] })), // Simuler une liste de PDFs générés
       ]);
+      console.log('Réponses reçues:', {
+        users: usersResponse.data.length,
+        templates: templatesResponse.data.length,
+        pdfs: pdfsResponse.data.length
+      });
 
       const users = usersResponse.data;
       const templates = templatesResponse.data;
@@ -102,6 +109,11 @@ export function useDashboardData(): UseDashboardDataReturn {
         templatesByAgeRange: calculateAgeRangeStats(templates),
         pdfsByMonth: calculatePdfStatsByMonth(pdfs), // Graphique des PDFs par mois
       };
+      console.log('Données calculées:', {
+        metrics,
+        chartDataKeys: Object.keys(chartData),
+        pdfsCount: pdfs.length
+      });
 
       setData({
         metrics,

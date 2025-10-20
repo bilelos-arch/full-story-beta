@@ -19,12 +19,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      console.log('Tentative de connexion avec:', { email, password: '***' });
       const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data;
+      console.log('Réponse login:', response);
+      const { access_token } = response.data;
+      console.log('Token reçu:', access_token ? 'Oui' : 'Non');
 
-      login(token, user);
+      await login(access_token);
+      console.log('Login réussi, redirection vers dashboard');
       router.push('/dashboard');
     } catch (err: any) {
+      console.error('Erreur de connexion:', err);
+      console.error('Détails erreur:', err.response?.data, err.response?.status);
       setError(err.response?.data?.message || 'Erreur de connexion');
     } finally {
       setLoading(false);
