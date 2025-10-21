@@ -22,6 +22,8 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { ITemplate } from './template.schema';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @ApiTags('templates')
 @Controller('templates')
@@ -85,15 +87,33 @@ export class TemplatesController {
 
     let pdfPath: string | undefined;
     let coverImagePath: string | undefined;
-    if (files.pdf && files.pdf[0]) {
-      // Handle PDF file upload logic here, e.g., save to disk or cloud storage
-      // For now, we'll assume the path is generated
-      pdfPath = files.pdf[0].filename || `template_${Date.now()}.pdf`;
+
+    // Ensure uploads/templates directory exists
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'templates');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
+
+    if (files.pdf && files.pdf[0]) {
+      // Generate unique filename and save PDF file
+      const pdfFileName = `template_${Date.now()}_${Math.random().toString(36).substring(2)}.pdf`;
+      const pdfFilePath = path.join(uploadsDir, pdfFileName);
+
+      // Write the file buffer to disk
+      fs.writeFileSync(pdfFilePath, files.pdf[0].buffer);
+      pdfPath = pdfFileName;
+      console.log('Backend Controller - PDF file saved to:', pdfFilePath);
+    }
+
     if (files.coverImage && files.coverImage[0]) {
-      // Handle cover image file upload logic here, e.g., save to disk or cloud storage
-      // For now, we'll assume the path is generated
-      coverImagePath = files.coverImage[0].filename || `cover_${Date.now()}.${files.coverImage[0].mimetype.split('/')[1]}`;
+      // Generate unique filename and save cover image file
+      const coverFileName = `cover_${Date.now()}_${Math.random().toString(36).substring(2)}.${files.coverImage[0].mimetype.split('/')[1]}`;
+      const coverFilePath = path.join(uploadsDir, coverFileName);
+
+      // Write the file buffer to disk
+      fs.writeFileSync(coverFilePath, files.coverImage[0].buffer);
+      coverImagePath = coverFileName;
+      console.log('Backend Controller - Cover image saved to:', coverFilePath);
     }
     return this.templatesService.create(createTemplateDto, req.user.userId, pdfPath, coverImagePath);
   }
@@ -159,7 +179,17 @@ export class TemplatesController {
   @ApiResponse({ status: 404, description: 'Fichier PDF non trouvé' })
   async servePdf(@Param('filename') filename: string, @Res() res: any): Promise<void> {
     const filePath = `uploads/templates/${filename}`;
-    res.sendFile(filePath, { root: '.' });
+    const fs = require('fs');
+    const path = require('path');
+
+    const fullPath = path.resolve('.', filePath);
+
+    // Check if file exists
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ message: 'Fichier PDF non trouvé' });
+    }
+
+    res.sendFile(fullPath);
   }
 
   @Get('cover/:filename')

@@ -1,6 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'dommatrix'; // Polyfill pour DOMMatrix
 
 // Configuration de PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;

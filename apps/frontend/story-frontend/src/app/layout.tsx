@@ -5,6 +5,13 @@ import { AuthProvider } from "../lib/auth-context";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 
+// Polyfill pour DOMMatrix
+import DOMMatrix from 'dommatrix';
+
+if (!globalThis.DOMMatrix) {
+  globalThis.DOMMatrix = DOMMatrix;
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

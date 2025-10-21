@@ -35,9 +35,15 @@ export class PdfService {
     const writeStream = fs.createWriteStream(outputPath);
     doc.pipe(writeStream);
 
-    // Note: Elements are no longer part of the template schema
-    // For now, we'll just add a placeholder text
-    doc.fontSize(12).text('Template PDF - Content will be implemented later', 50, 50);
+    // Ajouter le contenu du template avec les valeurs utilisateur
+    doc.fontSize(16).text(template.title, 50, 50);
+    doc.fontSize(12).text(`Description: ${template.description}`, 50, 80);
+
+    let yPosition = 120;
+    for (const [key, value] of Object.entries(userValues)) {
+      doc.fontSize(12).text(`${key}: ${value}`, 50, yPosition);
+      yPosition += 20;
+    }
 
     // Finaliser le PDF
     doc.end();
