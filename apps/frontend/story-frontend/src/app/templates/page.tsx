@@ -1,8 +1,10 @@
+// apps/frontend/story-frontend/src/app/templates/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import TemplateList from '../../components/TemplateList';
+import { Button } from '../../components/ui/button';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -13,12 +15,17 @@ export default function TemplatesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Retour au Dashboard
-            </button>
+            <div className="flex space-x-2">
+              <Button onClick={() => router.push('/admin/templates/new')}>
+                Créer un nouveau template
+              </Button>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Retour au Dashboard
+              </button>
+            </div>
           </div>
 
           <TemplateList />

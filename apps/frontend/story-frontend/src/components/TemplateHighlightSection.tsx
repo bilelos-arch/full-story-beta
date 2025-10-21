@@ -1,3 +1,4 @@
+// apps/frontend/story-frontend/src/components/TemplateHighlightSection.tsx
 'use client';
 
 import React from 'react';

@@ -22,6 +22,9 @@ async function bootstrap() {
   };
   app.useGlobalPipes(new ValidationPipe(validationPipeOptions));
 
+  // Set global prefix for all routes
+  app.setGlobalPrefix('api');
+
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Story Backend API')

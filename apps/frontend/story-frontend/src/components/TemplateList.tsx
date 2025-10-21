@@ -1,3 +1,4 @@
+// apps/frontend/story-frontend/src/components/TemplateList.tsx
 'use client';
 
 import React, { useState } from 'react';

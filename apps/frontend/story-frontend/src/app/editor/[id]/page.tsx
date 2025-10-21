@@ -1,3 +1,4 @@
+// apps/frontend/story-frontend/src/app/editor/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -163,48 +164,6 @@ export default function EditorPage() {
             </div>
           </div>
 
-          {/* Formulaire d'informations générales */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Informations générales</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
-                <input
-                  type="text"
-                  value={template.title}
-                  onChange={(e) => updateTemplateField('title', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                <input
-                  type="text"
-                  value={template.category}
-                  onChange={(e) => updateTemplateField('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tranche d'âge</label>
-                <input
-                  type="text"
-                  value={template.ageRange}
-                  onChange={(e) => updateTemplateField('ageRange', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea
-                value={template.description}
-                onChange={(e) => updateTemplateField('description', e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
 
           {/* Variables */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">

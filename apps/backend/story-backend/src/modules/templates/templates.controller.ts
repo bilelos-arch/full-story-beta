@@ -8,11 +8,12 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   Request,
   Query,
+  Res,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TemplatesService } from './templates.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
@@ -29,15 +30,22 @@ export class TemplatesController {
 
   @Post()
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @UseInterceptors(FileInterceptor('pdf'))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'pdf', maxCount: 1 },
+    { name: 'coverImage', maxCount: 1 },
+  ]))
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Créer un nouveau template avec upload de fichier PDF' })
+  @ApiOperation({ summary: 'Créer un nouveau template avec upload de fichier PDF et image de couverture' })
   @ApiResponse({ status: 201, description: 'Template créé avec succès' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         pdf: {
+          type: 'string',
+          format: 'binary',
+        },
+        coverImage: {
           type: 'string',
           format: 'binary',
         },
@@ -50,59 +58,44 @@ export class TemplatesController {
         category: {
           type: 'string',
         },
+        genre: {
+          type: 'string',
+        },
         ageRange: {
           type: 'string',
         },
-        variables: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              type: { type: 'string' },
-              defaultValue: { type: 'string' },
-            },
-          },
-        },
-        elements: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-              content: { type: 'string' },
-              position: {
-                type: 'object',
-                properties: {
-                  x: { type: 'number' },
-                  y: { type: 'number' },
-                },
-              },
-              size: {
-                type: 'object',
-                properties: {
-                  w: { type: 'number' },
-                  h: { type: 'number' },
-                },
-              },
-            },
-          },
+        status: {
+          type: 'string',
+          enum: ['draft', 'public'],
         },
       },
     },
   })
   async create(
     @Body() createTemplateDto: CreateTemplateDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: { pdf?: Express.Multer.File[], coverImage?: Express.Multer.File[] },
     @Request() req: any,
   ): Promise<ITemplate> {
+    console.log('Backend Controller - CreateTemplateDto received:', createTemplateDto);
+    console.log('Backend Controller - Uploaded files:', {
+      pdf: files.pdf?.[0] ? { filename: files.pdf[0].filename, size: files.pdf[0].size, mimetype: files.pdf[0].mimetype } : 'No PDF uploaded',
+      coverImage: files.coverImage?.[0] ? { filename: files.coverImage[0].filename, size: files.coverImage[0].size, mimetype: files.coverImage[0].mimetype } : 'No cover image uploaded'
+    });
+    console.log('Backend Controller - Request user:', req.user);
+
     let pdfPath: string | undefined;
-    if (file) {
-      // Handle file upload logic here, e.g., save to disk or cloud storage
+    let coverImagePath: string | undefined;
+    if (files.pdf && files.pdf[0]) {
+      // Handle PDF file upload logic here, e.g., save to disk or cloud storage
       // For now, we'll assume the path is generated
-      pdfPath = `uploads/templates/${file.filename}`;
+      pdfPath = files.pdf[0].filename || `template_${Date.now()}.pdf`;
     }
-    return this.templatesService.create(createTemplateDto, req.user.userId, pdfPath);
+    if (files.coverImage && files.coverImage[0]) {
+      // Handle cover image file upload logic here, e.g., save to disk or cloud storage
+      // For now, we'll assume the path is generated
+      coverImagePath = files.coverImage[0].filename || `cover_${Date.now()}.${files.coverImage[0].mimetype.split('/')[1]}`;
+    }
+    return this.templatesService.create(createTemplateDto, req.user.userId, pdfPath, coverImagePath);
   }
 
   @Get()
@@ -158,5 +151,23 @@ export class TemplatesController {
   @ApiResponse({ status: 404, description: 'Template non trouvé' })
   async remove(@Param('id') id: string): Promise<void> {
     return this.templatesService.remove(id);
+  }
+
+  @Get('pdf/:filename')
+  @ApiOperation({ summary: 'Servir un fichier PDF statiquement' })
+  @ApiResponse({ status: 200, description: 'Fichier PDF servi avec succès' })
+  @ApiResponse({ status: 404, description: 'Fichier PDF non trouvé' })
+  async servePdf(@Param('filename') filename: string, @Res() res: any): Promise<void> {
+    const filePath = `uploads/templates/${filename}`;
+    res.sendFile(filePath, { root: '.' });
+  }
+
+  @Get('cover/:filename')
+  @ApiOperation({ summary: 'Servir une image de couverture statiquement' })
+  @ApiResponse({ status: 200, description: 'Image de couverture servie avec succès' })
+  @ApiResponse({ status: 404, description: 'Image de couverture non trouvée' })
+  async serveCoverImage(@Param('filename') filename: string, @Res() res: any): Promise<void> {
+    const filePath = `uploads/templates/${filename}`;
+    res.sendFile(filePath, { root: '.' });
   }
 }

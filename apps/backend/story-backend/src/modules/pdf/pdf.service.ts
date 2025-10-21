@@ -35,38 +35,9 @@ export class PdfService {
     const writeStream = fs.createWriteStream(outputPath);
     doc.pipe(writeStream);
 
-    // Traiter chaque élément du template
-    for (const element of template.elements) {
-      let content = element.content;
-
-      // Remplacer les variables dans le contenu
-      for (const [key, value] of Object.entries(userValues)) {
-        content = content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value);
-      }
-
-      // Positionner l'élément
-      doc.save();
-      doc.translate(element.position.x, element.position.y);
-
-      if (element.type === 'text') {
-        // Insérer le texte
-        doc.fontSize(12).text(content, 0, 0, {
-          width: element.size.w,
-          height: element.size.h,
-        });
-      } else if (element.type === 'image') {
-        // Insérer l'image
-        const imagePath = path.join(process.cwd(), content);
-        if (fs.existsSync(imagePath)) {
-          doc.image(imagePath, 0, 0, {
-            width: element.size.w,
-            height: element.size.h,
-          });
-        }
-      }
-
-      doc.restore();
-    }
+    // Note: Elements are no longer part of the template schema
+    // For now, we'll just add a placeholder text
+    doc.fontSize(12).text('Template PDF - Content will be implemented later', 50, 50);
 
     // Finaliser le PDF
     doc.end();

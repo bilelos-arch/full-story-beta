@@ -11,13 +11,29 @@ export class TemplatesService {
     @InjectModel('Template') private templateModel: Model<ITemplate>,
   ) {}
 
-  async create(createTemplateDto: CreateTemplateDto, userId: string, pdfPath?: string): Promise<ITemplate> {
+  async create(createTemplateDto: CreateTemplateDto, userId: string, pdfPath?: string, coverImagePath?: string): Promise<ITemplate> {
+    console.log('Backend Service - CreateTemplateDto received:', createTemplateDto);
+    console.log('Backend Service - User ID:', userId);
+    console.log('Backend Service - PDF Path:', pdfPath);
+    console.log('Backend Service - Cover Image Path:', coverImagePath);
+
     const createdTemplate = new this.templateModel({
       ...createTemplateDto,
       pdfPath: pdfPath,
+      coverImagePath: coverImagePath,
       createdBy: userId,
     });
-    return createdTemplate.save();
+
+    console.log('Backend Service - Template object before save:', createdTemplate);
+
+    const savedTemplate = await createdTemplate.save();
+    console.log('Backend Service - Template saved successfully:', savedTemplate._id);
+
+    const populatedTemplate = await this.templateModel.findById(savedTemplate._id).populate('createdBy').exec();
+    if (!populatedTemplate) {
+      throw new Error('Template not found after creation');
+    }
+    return populatedTemplate as ITemplate;
   }
 
   async findAll(): Promise<ITemplate[]> {

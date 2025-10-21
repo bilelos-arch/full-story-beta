@@ -27,12 +27,14 @@ export interface ITemplate extends Document {
   title: string;
   description: string;
   category: string;
+  genre: string;
   ageRange: string;
   pdfPath: string;
-  variables: IVariable[];
-  elements: IElement[];
+  coverImagePath?: string;
   status: 'draft' | 'public';
   popularity: number;
+  variables: IVariable[];
+  elements: IElement[];
   createdBy: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -65,13 +67,21 @@ export const TemplateSchema = new Schema<ITemplate>({
   title: { type: String, required: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
+  genre: { type: String, required: true },
   ageRange: { type: String, required: true },
   pdfPath: { type: String, required: true },
-  variables: [VariableSchema],
-  elements: [ElementSchema],
+  coverImagePath: { type: String },
   status: { type: String, enum: ['draft', 'public'], default: 'draft' },
   popularity: { type: Number, default: 0 },
+  variables: { type: [VariableSchema], default: [] },
+  elements: { type: [ElementSchema], default: [] },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 }, {
   timestamps: true,
+});
+
+// Register the sub-schemas
+TemplateSchema.add({
+  variables: [VariableSchema],
+  elements: [ElementSchema],
 });
